@@ -4,16 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zakat Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 :root{
-  --bg:#071a14;
-  --card:#0f2d24;
-  --accent:#1abc9c;
-  --text:#ffffff;
+  /* Islamic-inspired palette */
+  --bg:#071e16; /* deep emerald */
+  --card:#0f2b22; /* dark card */
+  --accent:#d4af37; /* gold */
+  --muted:#f6eddc; /* parchment */
+  --text:#f8f4ea; /* warm ivory */
   --error:#ff6b6b;
 }
 
@@ -28,7 +31,7 @@ body.light{
 
 body{
   margin:0;
-  font-family:system-ui, sans-serif;
+  font-family: 'Cairo', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
   background:var(--bg);
   color:var(--text);
   transition:.3s;
@@ -41,18 +44,24 @@ body{
 }
 
 .card{
-  background:var(--card);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03)), var(--card);
   max-width:1000px;
   width:100%;
   padding:25px;
   border-radius:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.4);
+  box-shadow:0 10px 30px rgba(2,6,3,.6), 0 0 30px rgba(212,175,55,0.04) inset;
+  border:1px solid rgba(212,175,55,0.08);
 }
 
 h2{
   text-align:center;
   margin-bottom:5px;
+  letter-spacing:0.6px;
+  position:relative;
+  font-weight:600;
 }
+
+/* decorative crescent removed */
 
 .date{
   text-align:center;
@@ -83,8 +92,10 @@ input{
   width:100%;
   padding:10px;
   border-radius:8px;
-  border:none;
+  border:1px solid rgba(255,255,255,0.06);
   margin-top:5px;
+  background:rgba(255,255,255,0.02);
+  color:var(--text);
 }
 
 .checkbox-group{
@@ -98,9 +109,14 @@ button{
   border:none;
   border-radius:8px;
   background:var(--accent);
-  font-weight:bold;
+  color:#1b1b1b;
+  font-weight:700;
   cursor:pointer;
+  box-shadow:0 6px 18px rgba(212,175,55,0.12);
+  transition:transform .14s ease, box-shadow .14s ease;
 }
+
+button:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(212,175,55,0.16)}
 
 .full-width{
   width:100%;
@@ -160,6 +176,17 @@ canvas{
   margin-top:30px;
   font-size:14px;
   opacity:.8;
+}
+
+/* decorative page background: subtle geometric motif */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background-image: radial-gradient(rgba(212,175,55,0.02) 1px, transparent 1px);
+  background-size:24px 24px;
+  pointer-events:none;
+  opacity:0.45;
 }
 </style>
 </head>
@@ -228,11 +255,13 @@ canvas{
 
 <button class="full-width" onclick="calculate()">Calculate Zakat</button>
 
+<!--
 <div class="button-row">
-<button onclick="exportPDF()">Export PDF</button>
-<button onclick="toggleTheme()">Theme</button>
-<button onclick="alert('Language feature coming soon 🙂')">Language</button>
+  <button onclick="exportPDF()">Export PDF</button>
+  <button onclick="toggleTheme()">Theme</button>
+  <button onclick="alert('Language feature coming soon 🙂')">Language</button>
 </div>
+-->
 
 <div class="result" id="result"></div>
 <canvas id="chart"></canvas>
@@ -260,32 +289,60 @@ return number;
 }
 
 function calculate(){
-let cash=getValidNumber("cash");
-let bank=getValidNumber("bank");
-let gold=getValidNumber("goldGrams");
-let silver=getValidNumber("silverGrams");
-let gp=getValidNumber("goldPrice");
-let sp=getValidNumber("silverPrice");
-let invest=getValidNumber("investments");
-let business=getValidNumber("business");
-let debts=getValidNumber("debts");
+  let cash=getValidNumber("cash");
+  let bank=getValidNumber("bank");
+  let gold=getValidNumber("goldGrams");
+  let silver=getValidNumber("silverGrams");
+  let gp=getValidNumber("goldPrice");
+  let sp=getValidNumber("silverPrice");
+  let invest=getValidNumber("investments");
+  let business=getValidNumber("business");
+  let debts=getValidNumber("debts");
 
-let goldValue=gold*gp;
-let silverValue=silver*sp;
-let total=cash+bank+goldValue+silverValue+invest+business;
-let net=total-debts;
+  const goldValue=gold*gp;
+  const silverValue=silver*sp;
+  const total=cash+bank+goldValue+silverValue+invest+business;
+  const net=total-debts;
 
-let nisab=0;
-if(useGold.checked) nisab+=87.48*gp;
-if(useSilver.checked) nisab+=612.36*sp;
+  // read checkboxes explicitly (avoid relying on implicit global variables)
+  const useGoldChecked = document.getElementById('useGold')?.checked === true;
+  const useSilverChecked = document.getElementById('useSilver')?.checked === true;
 
-let zakat=net*0.025;
+  // only compute nisab values if corresponding prices are provided (>0)
+  const goldNisab = gp > 0 ? 87.48 * gp : null;
+  const silverNisab = sp > 0 ? 612.36 * sp : null;
 
-result.innerHTML=net>=nisab
-? "Zakat Payable: ₹"+zakat.toFixed(2)
-: "Below Nisab";
+  let nisab = null;
+  if(useGoldChecked && useSilverChecked){
+    const candidates = [];
+    if(goldNisab !== null) candidates.push(goldNisab);
+    if(silverNisab !== null) candidates.push(silverNisab);
+    if(candidates.length) nisab = Math.min(...candidates);
+  } else if(useGoldChecked){
+    if(goldNisab !== null) nisab = goldNisab;
+  } else if(useSilverChecked){
+    if(silverNisab !== null) nisab = silverNisab;
+  } else {
+    // neither checked: prefer gold if available, otherwise silver
+    if(goldNisab !== null) nisab = goldNisab;
+    else if(silverNisab !== null) nisab = silverNisab;
+  }
 
-renderChart(cash,bank,goldValue,silverValue,invest,business);
+  const resultEl = document.getElementById('result');
+  if(nisab === null){
+    resultEl.innerHTML = "Enter gold/silver price to compute Nisab";
+    renderChart(cash,bank,goldValue,silverValue,invest,business);
+    return;
+  }
+
+  const zakat = net * 0.025;
+  if(net >= nisab){
+    resultEl.innerHTML = "Zakat Payable: ₹" + zakat.toFixed(2) + " (Nisab: ₹" + nisab.toFixed(2) + ")";
+  } else {
+    resultEl.innerHTML = "Below Nisab (Nisab: ₹" + nisab.toFixed(2) + ")";
+  }
+
+  renderChart(cash,bank,goldValue,silverValue,invest,business);
 }
 
 function renderChart(cash,bank,gold,silver,invest,business){
