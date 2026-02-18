@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zakat Calculator</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+:root{
+  --bg:#071a14;
+  --card:#0f2d24;
+  --accent:#1abc9c;
+  --text:#ffffff;
+  --error:#ff6b6b;
+}
+
+/* Ensure consistent sizing to prevent inputs overflowing/overlapping */
+*,*::before,*::after{box-sizing:border-box}
+
+body.light{
+  --bg:#f4f6f9;
+  --card:#ffffff;
+  --text:#000000;
+}
+
+body{
+  margin:0;
+  font-family:system-ui, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  transition:.3s;
+}
+
+.container{
+  padding:20px;
+  display:flex;
+  justify-content:center;
+}
+
+.card{
+  background:var(--card);
+  max-width:1000px;
+  width:100%;
+  padding:25px;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+
+h2{
+  text-align:center;
+  margin-bottom:5px;
+}
+
+.date{
+  text-align:center;
+  font-size:14px;
+  opacity:.8;
+  margin-bottom:20px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:15px;
+}
+
+.grid > div{min-width:0;display:flex;flex-direction:column}
+
+@media(min-width:768px){
+  .grid{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+label{
+  font-size:14px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  margin-top:5px;
+}
+
+.checkbox-group{
+  margin-top:15px;
+  display:flex;
+  gap:20px;
+}
+
+button{
+  padding:14px;
+  border:none;
+  border-radius:8px;
+  background:var(--accent);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.full-width{
+  width:100%;
+  margin-top:20px;
+}
+
+.button-row{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  margin-top:15px;
+}
+
+@media(min-width:600px){
+  .button-row{
+    grid-template-columns:1fr 1fr 1fr;
+  }
+}
+
+.result{
+  margin-top:20px;
+  font-size:18px;
+  text-align:center;
+  font-weight:bold;
+}
+
+canvas{
+  margin-top:20px;
+}
+
+/* Responsive layout tweaks */
+@media (max-width:599px){
+  .card{padding:16px;border-radius:12px}
+  h2{font-size:20px}
+  .date{font-size:13px}
+  input{font-size:16px;padding:12px}
+  .checkbox-group{flex-direction:column;gap:8px}
+  .button-row{display:flex;flex-direction:column;gap:10px}
+  .button-row button{width:100%}
+  canvas{max-height:300px}
+}
+
+@media (min-width:600px) and (max-width:899px){
+  .grid{grid-template-columns:1fr 1fr}
+  .button-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  canvas{max-height:350px}
+}
+
+@media (min-width:900px){
+  .grid{grid-template-columns:1fr 1fr}
+  .card{padding:28px}
+  canvas{max-height:420px}
+}
+
+.footer{
+  text-align:center;
+  margin-top:30px;
+  font-size:14px;
+  opacity:.8;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<div class="card">
+
+<h2>Zakat Calculator</h2>
+<div class="date" id="todayDate"></div>
+
+<div class="grid">
+
+<div>
+<label>Cash (₹)</label>
+<input type="text" id="cash">
+</div>
+
+<div>
+<label>Bank (₹)</label>
+<input type="text" id="bank">
+</div>
+
+<div>
+<label>Gold (grams)</label>
+<input type="text" id="goldGrams">
+</div>
+
+<div>
+<label>Silver (grams)</label>
+<input type="text" id="silverGrams">
+</div>
+
+<div>
+<label>Gold Price per gram (₹)</label>
+<input type="text" id="goldPrice">
+</div>
+
+<div>
+<label>Silver Price per gram (₹)</label>
+<input type="text" id="silverPrice">
+</div>
+
+<div>
+<label>Investments (₹)</label>
+<input type="text" id="investments">
+</div>
+
+<div>
+<label>Business Stock (₹)</label>
+<input type="text" id="business">
+</div>
+
+<div>
+<label>Debts (₹)</label>
+<input type="text" id="debts">
+</div>
+
+</div>
+
+<div class="checkbox-group">
+<label><input type="checkbox" id="useGold" checked> Use Gold Nisab</label>
+<label><input type="checkbox" id="useSilver"> Use Silver Nisab</label>
+</div>
+
+<button class="full-width" onclick="calculate()">Calculate Zakat</button>
+
+<div class="button-row">
+<button onclick="exportPDF()">Export PDF</button>
+<button onclick="toggleTheme()">Theme</button>
+<button onclick="alert('Language feature coming soon 🙂')">Language</button>
+</div>
+
+<div class="result" id="result"></div>
+<canvas id="chart"></canvas>
+
+<div class="footer">
+Developed by Basith ❤️ Roshni
+</div>
+
+</div>
+</div>
+
+<script>
+document.getElementById("todayDate").innerText =
+new Date().toLocaleDateString();
+
+let chart;
+
+function getValidNumber(id){
+let value=document.getElementById(id).value.trim();
+let number=parseFloat(value);
+if(isNaN(number) || number<0){
+return 0;
+}
+return number;
+}
+
+function calculate(){
+let cash=getValidNumber("cash");
+let bank=getValidNumber("bank");
+let gold=getValidNumber("goldGrams");
+let silver=getValidNumber("silverGrams");
+let gp=getValidNumber("goldPrice");
+let sp=getValidNumber("silverPrice");
+let invest=getValidNumber("investments");
+let business=getValidNumber("business");
+let debts=getValidNumber("debts");
+
+let goldValue=gold*gp;
+let silverValue=silver*sp;
+let total=cash+bank+goldValue+silverValue+invest+business;
+let net=total-debts;
+
+let nisab=0;
+if(useGold.checked) nisab+=87.48*gp;
+if(useSilver.checked) nisab+=612.36*sp;
+
+let zakat=net*0.025;
+
+result.innerHTML=net>=nisab
+? "Zakat Payable: ₹"+zakat.toFixed(2)
+: "Below Nisab";
+
+renderChart(cash,bank,goldValue,silverValue,invest,business);
+}
+
+function renderChart(cash,bank,gold,silver,invest,business){
+if(chart) chart.destroy();
+chart=new Chart(document.getElementById("chart"),{
+type:"pie",
+data:{
+labels:["Cash","Bank","Gold","Silver","Investments","Business"],
+datasets:[{data:[cash,bank,gold,silver,invest,business]}]
+}
+});
+}
+
+function exportPDF(){
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+doc.text("Zakat Calculation Summary",20,20);
+doc.text(result.innerText,20,30);
+
+let now=new Date();
+let year=now.getFullYear();
+let month=String(now.getMonth()+1).padStart(2,'0');
+let day=String(now.getDate()).padStart(2,'0');
+let hours=now.getHours();
+let minutes=String(now.getMinutes()).padStart(2,'0');
+let seconds=String(now.getSeconds()).padStart(2,'0');
+let ampm=hours>=12?"PM":"AM";
+hours=hours%12||12;
+hours=String(hours).padStart(2,'0');
+
+let formatted=`${year}-${month}-${day} ${hours}-${minutes}-${seconds} ${ampm}`;
+doc.save(`zakat-report-${formatted}.pdf`);
+}
+
+function toggleTheme(){
+document.body.classList.toggle("light");
+}
+</script>
+
+</body>
+</html>
