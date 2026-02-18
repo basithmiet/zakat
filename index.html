@@ -4,39 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zakat Calculator</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
 
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 :root{
-  /* Islamic-inspired palette */
-  --bg:#071e16; /* deep emerald */
-  --card:#0f2b22; /* dark card */
-  --accent:#d4af37; /* gold */
-  --muted:#f6eddc; /* parchment */
-  --text:#f8f4ea; /* warm ivory */
+  --bg:#071e16;
+  --card:#0f2b22;
+  --accent:#d4af37;
+  --text:#f8f4ea;
   --error:#ff6b6b;
 }
 
-/* Ensure consistent sizing to prevent inputs overflowing/overlapping */
-*,*::before,*::after{box-sizing:border-box}
-
-body.light{
-  --bg:#f4f6f9;
-  --card:#ffffff;
-  --text:#000000;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
-  font-family: 'Cairo', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-family:'Cairo',sans-serif;
   background:var(--bg);
   color:var(--text);
-  transition:.3s;
 }
 
 .container{
@@ -46,24 +33,18 @@ body{
 }
 
 .card{
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03)), var(--card);
+  background:var(--card);
   max-width:1000px;
   width:100%;
   padding:25px;
   border-radius:16px;
-  box-shadow:0 10px 30px rgba(2,6,3,.6), 0 0 30px rgba(212,175,55,0.04) inset;
-  border:1px solid rgba(212,175,55,0.08);
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
 }
 
 h2{
   text-align:center;
   margin-bottom:5px;
-  letter-spacing:0.6px;
-  position:relative;
-  font-weight:600;
 }
-
-/* decorative crescent removed */
 
 .date{
   text-align:center;
@@ -72,84 +53,25 @@ h2{
   margin-bottom:20px;
 }
 
-/* Language selector styling */
-#langSelect{
-  padding:8px 12px;
-  border-radius:8px;
-  border:1px solid rgba(255,255,255,0.08);
-  background:rgba(255,255,255,0.02);
-  color:var(--text);
-  font-weight:600;
-  cursor:pointer;
-  outline:none;
-  transition:box-shadow .14s ease, transform .14s ease;
-}
-#langSelect:focus{box-shadow:0 6px 18px rgba(212,175,55,0.08);transform:translateY(-1px)}
-
-/* Keep the select dark when focused/clicked and reduce white flash */
-#langSelect, #langSelect option{
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-#langSelect:focus, #langSelect:active{
-  background: rgba(212,175,55,0.04);
-  color: var(--text);
-}
-
-/* Header row: language selector + checkboxes */
-.top-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:12px;
-}
-.top-left{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-/* language radio buttons styled to match theme */
-.lang-radio-group{display:flex;gap:8px;align-items:center}
-.lang-option{display:inline-flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.01);cursor:pointer;font-weight:600}
-.lang-option input{width:16px;height:16px;margin:0;padding:0;accent-color:var(--accent)}
-.lang-option:hover{box-shadow:0 6px 14px rgba(212,175,55,0.04);transform:translateY(-1px)}
-
-/* make select full-width on small screens */
-@media (max-width:599px){
-  #langSelect{width:100%;max-width:none}
-}
-
-/* RTL support for Urdu */
-[dir="rtl"] #langSelect{direction:rtl;text-align:right}
-
 .grid{
   display:grid;
   grid-template-columns:1fr;
   gap:15px;
 }
 
-.grid > div{min-width:0;display:flex;flex-direction:column}
-
 @media(min-width:768px){
-  .grid{
-    grid-template-columns:1fr 1fr;
-  }
+  .grid{grid-template-columns:1fr 1fr;}
 }
 
-label{
-  font-size:14px;
-}
+label{font-size:14px;}
 
 input{
   width:100%;
   padding:10px;
   border-radius:8px;
-  border:1px solid rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,.1);
   margin-top:5px;
-  background:rgba(255,255,255,0.02);
+  background:rgba(255,255,255,.05);
   color:var(--text);
 }
 
@@ -159,36 +81,19 @@ input{
   gap:20px;
 }
 
+/* Ensure checkboxes align vertically with their labels */
+.checkbox-group label{display:inline-flex;align-items:center;gap:10px;font-weight:600}
+.checkbox-group input[type="checkbox"]{width:16px;height:16px;margin:0}
+
 button{
   padding:14px;
   border:none;
   border-radius:8px;
   background:var(--accent);
-  color:#1b1b1b;
-  font-weight:700;
+  color:#000;
+  font-weight:bold;
   cursor:pointer;
-  box-shadow:0 6px 18px rgba(212,175,55,0.12);
-  transition:transform .14s ease, box-shadow .14s ease;
-}
-
-button:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(212,175,55,0.16)}
-
-.full-width{
-  width:100%;
   margin-top:20px;
-}
-
-.button-row{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:10px;
-  margin-top:15px;
-}
-
-@media(min-width:600px){
-  .button-row{
-    grid-template-columns:1fr 1fr 1fr;
-  }
 }
 
 .result{
@@ -198,50 +103,11 @@ button:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(212,175,55,0
   font-weight:bold;
 }
 
-canvas{
-  margin-top:20px;
-}
-
-/* Responsive layout tweaks */
-@media (max-width:599px){
-  .card{padding:16px;border-radius:12px}
-  h2{font-size:20px}
-  .date{font-size:13px}
-  input{font-size:16px;padding:12px}
-  .checkbox-group{flex-direction:column;gap:8px}
-  .button-row{display:flex;flex-direction:column;gap:10px}
-  .button-row button{width:100%}
-  canvas{max-height:300px}
-}
-
-@media (min-width:600px) and (max-width:899px){
-  .grid{grid-template-columns:1fr 1fr}
-  .button-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  canvas{max-height:350px}
-}
-
-@media (min-width:900px){
-  .grid{grid-template-columns:1fr 1fr}
-  .card{padding:28px}
-  canvas{max-height:420px}
-}
-
 .footer{
   text-align:center;
   margin-top:30px;
   font-size:14px;
   opacity:.8;
-}
-
-/* decorative page background: subtle geometric motif */
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background-image: radial-gradient(rgba(212,175,55,0.02) 1px, transparent 1px);
-  background-size:24px 24px;
-  pointer-events:none;
-  opacity:0.45;
 }
 </style>
 </head>
@@ -251,314 +117,183 @@ body::before{
 <div class="container">
 <div class="card">
 
-<h2 data-i18n="title">Zakat Calculator</h2>
+<h2>Zakat Calculator</h2>
 <div class="date" id="todayDate"></div>
-
-<div class="top-row">
-  <div class="top-left">
-    <div class="lang-radio-group" role="radiogroup" aria-label="Language select">
-      <label class="lang-option"><input type="radio" name="language" value="en" checked> <span>English</span></label>
-      <label class="lang-option"><input type="radio" name="language" value="ta"> <span>தமிழ்</span></label>
-      <label class="lang-option"><input type="radio" name="language" value="ur"> <span>اردو</span></label>
-    </div>
-  </div>
-  <!--
-  <div class="checkbox-group" style="margin:0">
-    <label><input type="checkbox" id="useGold" checked> <span data-i18n="useGold">Use Gold Nisab</span></label>
-    <label><input type="checkbox" id="useSilver" checked> <span data-i18n="useSilver">Use Silver Nisab</span></label>
-  </div>
-  -->
-</div>
 
 <div class="grid">
 
 <div>
-<label data-i18n="cash">Cash (₹)</label>
+<label>Cash (₹)</label>
 <input type="text" id="cash">
 </div>
 
 <div>
-<label data-i18n="bank">Bank (₹)</label>
+<label>Bank Balance (₹)</label>
 <input type="text" id="bank">
 </div>
 
 <div>
-<label data-i18n="goldGrams">Gold (grams)</label>
+<label>Gold (grams)</label>
 <input type="text" id="goldGrams">
 </div>
 
 <div>
-<label data-i18n="silverGrams">Silver (grams)</label>
+<label>Silver (grams)</label>
 <input type="text" id="silverGrams">
 </div>
 
 <div>
-<label data-i18n="goldPrice">Gold Price per gram (₹)</label>
+<label>Gold Price per gram (₹)</label>
 <input type="text" id="goldPrice">
 </div>
 
 <div>
-<label data-i18n="silverPrice">Silver Price per gram (₹)</label>
+<label>Silver Price per gram (₹)</label>
 <input type="text" id="silverPrice">
 </div>
 
 <div>
-<label data-i18n="investments">Investments (₹)</label>
+<label>Zakatable Investments (₹)</label>
 <input type="text" id="investments">
 </div>
 
 <div>
-<label data-i18n="business">Business Stock (₹)</label>
+<label>Business Stock Value (₹)</label>
 <input type="text" id="business">
 </div>
 
 <div>
-<label data-i18n="debts">Debts (₹)</label>
+<label>Money Owed To You (₹)</label>
+<input type="text" id="receivables">
+</div>
+
+<div>
+<label>Retirement / EPF (Zakatable Portion) (₹)</label>
+<input type="text" id="retirement">
+</div>
+
+<div>
+<label>Debts Payable (₹)</label>
 <input type="text" id="debts">
 </div>
 
 </div>
 
+<div class="checkbox-group">
+<label>
+<input type="checkbox" id="hawlCheck">
+1 Lunar Year Completed (Hawl)
+</label>
 
-
-<button class="full-width" id="calcBtn" onclick="calculate()" data-i18n="calculate">Calculate Zakat</button>
-
-<!--
-<div class="button-row">
-  <button onclick="exportPDF()">Export PDF</button>
-  <button onclick="toggleTheme()">Theme</button>
-  <button onclick="alert('Language feature coming soon 🙂')">Language</button>
+<label>
+<input type="checkbox" id="includeJewelry" checked>
+Include Personal Gold Jewelry (Hanafi Opinion)
+</label>
 </div>
--->
+
+<button onclick="calculate()">Calculate Zakat</button>
 
 <div class="result" id="result"></div>
 <canvas id="chart"></canvas>
 
-<div class="footer" id="footer" data-i18n="footer">Developed by Basith ❤️ Roshni</div>
+<div class="footer">Developed by Basith ❤️ Roshni</div>
 
 </div>
 </div>
 
 <script>
-// initialize date and i18n
-document.getElementById("todayDate").innerText = new Date().toLocaleDateString();
+
+document.getElementById("todayDate").innerText =
+  new Date().toLocaleDateString();
 
 let chart;
-let currentLang = 'en';
-
-const translations = {
-  en: {
-    title: 'Zakat Calculator',
-    cash: 'Cash (₹)',
-    bank: 'Bank (₹)',
-    goldGrams: 'Gold (grams)',
-    silverGrams: 'Silver (grams)',
-    goldPrice: 'Gold Price per gram (₹)',
-    silverPrice: 'Silver Price per gram (₹)',
-    investments: 'Investments (₹)',
-    business: 'Business Stock (₹)',
-    debts: 'Debts (₹)',
-    useGold: 'Use Gold Nisab',
-    useSilver: 'Use Silver Nisab',
-    calculate: 'Calculate Zakat',
-    footer: 'Developed by Basith ❤️ Roshni',
-    enterPrice: 'Enter gold/silver price to compute Nisab',
-    zakatPayable: 'Zakat Payable:',
-    belowNisab: 'Below Nisab',
-    nisabLabel: 'Nisab',
-    chartLabels: ['Cash','Bank','Gold','Silver','Investments','Business']
-  },
-  ta: {
-    title: 'Zakat கணக்கீடு',
-    cash: 'பணம் (₹)',
-    bank: 'வங்கி (₹)',
-    goldGrams: 'தங்கம் (கிராம்)',
-    silverGrams: 'வெள்ளி (கிராம்)',
-    goldPrice: 'தங்கம் விலை/கிராம் (₹)',
-    silverPrice: 'வெள்ளி விலை/கிராம் (₹)',
-    investments: 'முதலீடுகள் (₹)',
-    business: 'வணிக பங்கு (₹)',
-    debts: 'கடன்கள் (₹)',
-    useGold: 'தங்க நிசாப் பயன்படுத்தவும்',
-    useSilver: 'வெள்ளி நிசாப் பயன்படுத்தவும்',
-    calculate: 'Zakat கணக்கிடு',
-    footer: 'பாஸித் ❤️ ரோஷ்னி உருவாக்கியது',
-    enterPrice: 'நிசாப் கணக்கிட தங்க/வெள்ளி விலையை உள்ளிடவும்',
-    zakatPayable: 'கட்ட வேண்டிய Zakat:',
-    belowNisab: 'நிசாப் கீழ்',
-    nisabLabel: 'நிசாப்',
-    chartLabels: ['பணம்','வங்கி','தங்கம்','வெள்ளி','முதலீடுகள்','வணிகம்']
-  },
-  ur: {
-    title: 'زکات کیلکولیٹر',
-    cash: 'نقد (₹)',
-    bank: 'بینک (₹)',
-    goldGrams: 'سونا (گرام)',
-    silverGrams: 'چاندی (گرام)',
-    goldPrice: 'قیمت سونا فی گرام (₹)',
-    silverPrice: 'قیمت چاندی فی گرام (₹)',
-    investments: 'سرمایہ (₹)',
-    business: 'کاروبار کا اسٹاک (₹)',
-    debts: 'قرض (₹)',
-    useGold: 'سونے کا نصاب استعمال کریں',
-    useSilver: 'چاندی کا نصاب استعمال کریں',
-    calculate: 'زکات حساب کریں',
-    footer: 'باسط ❤️ روشنی تیار کردہ',
-    enterPrice: 'نصاب معلوم کرنے کے لیے سونا/چاندی کی قیمت درج کریں',
-    zakatPayable: 'ادا کرنے والی زکات:',
-    belowNisab: 'نصاب سے کم',
-    nisabLabel: 'نصاب',
-    chartLabels: ['نقد','بینک','سونا','چاندی','سرمایہ','کاروبار']
-  }
-};
-
-function setLanguage(lang){
-  currentLang = lang || 'en';
-  localStorage.setItem('zakat_lang', currentLang);
-  const localeMap = {en:'en-US', ta:'ta-IN', ur:'ur-PK'};
-  document.getElementById('todayDate').innerText = new Date().toLocaleDateString(localeMap[currentLang]||'en-US');
-  // direction and font
-  if(currentLang === 'ur'){
-    document.documentElement.dir = 'rtl';
-    document.body.style.fontFamily = "'Noto Naskh Arabic', Cairo, system-ui, sans-serif";
-  } else if(currentLang === 'ta'){
-    document.documentElement.dir = 'ltr';
-    document.body.style.fontFamily = "'Noto Sans Tamil', Cairo, system-ui, sans-serif";
-  } else {
-    document.documentElement.dir = 'ltr';
-    document.body.style.fontFamily = "'Cairo', system-ui, sans-serif";
-  }
-
-  // update text for all elements with data-i18n
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if(!key) return;
-    const txt = (translations[currentLang] && translations[currentLang][key]) || translations['en'][key] || el.textContent;
-    el.textContent = txt;
-  });
-
-  // update chart if visible
-  if(chart){
-    chart.data.labels = translations[currentLang].chartLabels.slice();
-    chart.update();
-  }
-
-  // reflect current language in radio buttons
-  const radios = document.querySelectorAll('input[name="language"]');
-  radios.forEach(r => r.checked = (r.value === currentLang));
-}
-
-// attach language radio listeners and initialize
-const savedLang = localStorage.getItem('zakat_lang') || 'en';
-document.querySelectorAll('input[name="language"]').forEach(r => r.addEventListener('change', (e) => setLanguage(e.target.value)));
-setLanguage(savedLang);
 
 function getValidNumber(id){
-let value=document.getElementById(id).value.trim();
-let number=parseFloat(value);
-if(isNaN(number) || number<0){
-return 0;
-}
-return number;
+  let value = document.getElementById(id).value.trim();
+  let number = parseFloat(value);
+  if(isNaN(number) || number < 0) return 0;
+  return number;
 }
 
 function calculate(){
-  let cash=getValidNumber("cash");
-  let bank=getValidNumber("bank");
-  let gold=getValidNumber("goldGrams");
-  let silver=getValidNumber("silverGrams");
-  let gp=getValidNumber("goldPrice");
-  let sp=getValidNumber("silverPrice");
-  let invest=getValidNumber("investments");
-  let business=getValidNumber("business");
-  let debts=getValidNumber("debts");
 
-  const goldValue=gold*gp;
-  const silverValue=silver*sp;
-  const total=cash+bank+goldValue+silverValue+invest+business;
-  const net=total-debts;
-
-  // read checkboxes explicitly (avoid relying on implicit global variables)
-  const useGoldChecked = document.getElementById('useGold')?.checked === true;
-  const useSilverChecked = document.getElementById('useSilver')?.checked === true;
-
-  // only compute nisab values if corresponding prices are provided (>0)
-  const goldNisab = gp > 0 ? 87.48 * gp : null;
-  const silverNisab = sp > 0 ? 612.36 * sp : null;
-
-  let nisab = null;
-  if(useGoldChecked && useSilverChecked){
-    const candidates = [];
-    if(goldNisab !== null) candidates.push(goldNisab);
-    if(silverNisab !== null) candidates.push(silverNisab);
-    if(candidates.length) nisab = Math.min(...candidates);
-  } else if(useGoldChecked){
-    if(goldNisab !== null) nisab = goldNisab;
-  } else if(useSilverChecked){
-    if(silverNisab !== null) nisab = silverNisab;
-  } else {
-    // neither checked: prefer gold if available, otherwise silver
-    if(goldNisab !== null) nisab = goldNisab;
-    else if(silverNisab !== null) nisab = silverNisab;
-  }
-
-  const resultEl = document.getElementById('result');
-  if(nisab === null){
-    resultEl.innerHTML = (translations[currentLang] && translations[currentLang].enterPrice) || translations['en'].enterPrice;
-    renderChart(cash,bank,goldValue,silverValue,invest,business);
+  const hawl = document.getElementById("hawlCheck").checked;
+  if(!hawl){
+    document.getElementById("result").innerHTML =
+      "Zakat not yet due (1 lunar year not completed).";
     return;
   }
 
-  const zakat = net * 0.025;
-  if(net >= nisab){
-    const label = (translations[currentLang] && translations[currentLang].zakatPayable) || translations['en'].zakatPayable;
-    const nisabLabel = (translations[currentLang] && translations[currentLang].nisabLabel) || translations['en'].nisabLabel;
-    resultEl.innerHTML = label + ' ₹' + zakat.toFixed(2) + ' (' + nisabLabel + ': ₹' + nisab.toFixed(2) + ')';
-  } else {
-    const below = (translations[currentLang] && translations[currentLang].belowNisab) || translations['en'].belowNisab;
-    const nisabLabel = (translations[currentLang] && translations[currentLang].nisabLabel) || translations['en'].nisabLabel;
-    resultEl.innerHTML = below + ' (' + nisabLabel + ': ₹' + nisab.toFixed(2) + ')';
+  let cash = getValidNumber("cash");
+  let bank = getValidNumber("bank");
+  let goldGrams = getValidNumber("goldGrams");
+  let silverGrams = getValidNumber("silverGrams");
+  let goldPrice = getValidNumber("goldPrice");
+  let silverPrice = getValidNumber("silverPrice");
+  let investments = getValidNumber("investments");
+  let business = getValidNumber("business");
+  let receivables = getValidNumber("receivables");
+  let retirement = getValidNumber("retirement");
+  let debts = getValidNumber("debts");
+
+  const includeJewelry =
+    document.getElementById("includeJewelry").checked;
+
+  let goldValue = includeJewelry ? goldGrams * goldPrice : 0;
+  let silverValue = silverGrams * silverPrice;
+
+  let totalAssets =
+    cash + bank + goldValue + silverValue +
+    investments + business + receivables + retirement;
+
+  let netWealth = totalAssets - debts;
+
+  if(netWealth <= 0){
+    document.getElementById("result").innerHTML =
+      "No Zakat due (net wealth is zero or negative).";
+    return;
   }
 
-  renderChart(cash,bank,goldValue,silverValue,invest,business);
+  if(silverPrice <= 0){
+    document.getElementById("result").innerHTML =
+      "Please enter silver price to calculate Nisab.";
+    return;
+  }
+
+  const nisab = 612.36 * silverPrice;
+
+  if(netWealth < nisab){
+    document.getElementById("result").innerHTML =
+      "Below Nisab. No Zakat due.<br>Nisab: ₹" +
+      nisab.toFixed(2);
+    renderChart(cash,bank,goldValue,silverValue,investments,business);
+    return;
+  }
+
+  const zakat = netWealth * 0.025;
+
+  document.getElementById("result").innerHTML =
+    "Zakat Payable: ₹" +
+    zakat.toFixed(2) +
+    "<br>Nisab: ₹" + nisab.toFixed(2);
+
+  renderChart(cash,bank,goldValue,silverValue,investments,business);
 }
 
 function renderChart(cash,bank,gold,silver,invest,business){
   if(chart) chart.destroy();
-  const labels = (translations[currentLang] && translations[currentLang].chartLabels) ? translations[currentLang].chartLabels.slice() : ['Cash','Bank','Gold','Silver','Investments','Business'];
+
   chart = new Chart(document.getElementById("chart"),{
-    type: "pie",
-    data: {
-      labels: labels,
-      datasets: [{data:[cash,bank,gold,silver,invest,business]}]
+    type:"pie",
+    data:{
+      labels:["Cash","Bank","Gold","Silver","Investments","Business"],
+      datasets:[{
+        data:[cash,bank,gold,silver,invest,business]
+      }]
     }
   });
 }
 
-function exportPDF(){
-const { jsPDF } = window.jspdf;
-let doc=new jsPDF();
-doc.text("Zakat Calculation Summary",20,20);
-doc.text(result.innerText,20,30);
-
-let now=new Date();
-let year=now.getFullYear();
-let month=String(now.getMonth()+1).padStart(2,'0');
-let day=String(now.getDate()).padStart(2,'0');
-let hours=now.getHours();
-let minutes=String(now.getMinutes()).padStart(2,'0');
-let seconds=String(now.getSeconds()).padStart(2,'0');
-let ampm=hours>=12?"PM":"AM";
-hours=hours%12||12;
-hours=String(hours).padStart(2,'0');
-
-let formatted=`${year}-${month}-${day} ${hours}-${minutes}-${seconds} ${ampm}`;
-doc.save(`zakat-report-${formatted}.pdf`);
-}
-
-function toggleTheme(){
-document.body.classList.toggle("light");
-}
 </script>
 
 </body>
